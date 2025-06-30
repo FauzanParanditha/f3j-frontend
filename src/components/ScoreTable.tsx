@@ -29,7 +29,7 @@ export default function ScoreTable() {
     }
   };
 
-  if (isLoading || !scores) {
+  if (isLoading) {
     return <FullScreenLoader />;
   }
   return (
