@@ -11,6 +11,8 @@ interface TimerState {
   flightStart: number | null;
   flightDuration: number;
   lastFlight: number;
+  wtRelaunch: number;
+  possibleFlight: number;
 
   setMode: (mode: ModeType) => void;
   setTime: (seconds: number) => void;
@@ -33,15 +35,21 @@ export const useTimerStore = create<TimerState>((set) => ({
   flightStart: null,
   flightDuration: 0,
   lastFlight: 0,
+  wtRelaunch: 0,
+  possibleFlight: 0,
 
   setMode: (mode) => set(() => ({ mode })),
+
   setTime: (seconds) =>
     set(() => ({
       time: seconds,
       initialTime: seconds,
     })),
+
   start: () => set(() => ({ isRunning: true })),
+
   pause: () => set(() => ({ isRunning: false })),
+
   reset: () =>
     set((state) => ({
       time: state.initialTime,
@@ -49,38 +57,52 @@ export const useTimerStore = create<TimerState>((set) => ({
       flightDuration: 0,
       flightStart: null,
       relaunchCount: 0,
+      wtRelaunch: state.initialTime,
+      possibleFlight: state.initialTime,
       lastFlight: 0, // tambahkan ini
       mode: "latihan", // opsional: reset mode
     })),
+
   tick: () =>
     set((state) => {
       console.log("Tick: ", state.time);
       if (state.time <= 0) return { isRunning: false };
       return { time: state.time - 1 };
     }),
+
   relaunch: () =>
     set((state) => {
       const now = Date.now();
-
-      // hitung durasi flight sebelumnya jika ada
       const lastFlight = state.flightStart
         ? Math.floor((now - state.flightStart) / 1000)
         : 0;
+
+      const maxFlight = 600;
+      const possibleFlight = Math.min(state.time, maxFlight);
 
       return {
         relaunchCount: state.relaunchCount + 1,
         flightStart: now,
         flightDuration: 0,
         lastFlight,
-        // ⛔ jangan set ulang state.time di sini!
+        wtRelaunch: state.time,
+        possibleFlight,
       };
     }),
 
   startFlight: () =>
-    set(() => ({
-      flightStart: Date.now(),
-      flightDuration: 0,
-    })),
+    set((state) => {
+      const now = Date.now();
+      const maxFlight = 600; // 10 menit
+      const possibleFlight = Math.min(state.time, maxFlight);
+
+      return {
+        flightStart: now,
+        flightDuration: 0,
+        wtRelaunch: state.time,
+        possibleFlight,
+      };
+    }),
 
   stopFlight: () =>
     set((state) => {
