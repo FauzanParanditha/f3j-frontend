@@ -10,7 +10,6 @@ export default function WorkingTimeStatus() {
     time,
     isRunning,
     tick,
-    setTime,
     reset,
     start,
     initialTime,
