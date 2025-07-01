@@ -29,6 +29,11 @@ export default function ScoreForm() {
     const flightTime = formatTime(flightSeconds);
     const totalScore = Math.min(flightSeconds, 600) + landingScore;
 
+    if (lastFlight < 0 || time <= 0) {
+      toast.error("Flight terakhir melebihi waktu kerja!");
+      return;
+    }
+
     // 🛑 Validasi: waktu habis
     if (time <= 0) {
       toast.error("Waktu habis. Tidak bisa menyimpan skor.");
